@@ -19,6 +19,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // 检查是否readknown摘要文章页面，并获取文章uuid
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        var urlPattern = new RegExp('https://readknown.cn/dashboard/.*');
+        if (!urlPattern.test(tabs[0].url)) {
+            syncCurrentBtn.setAttribute("disabled", true);
+            syncCurrentBtn.style.backgroundColor = "#cecece";
+        } else {
+            chrome.tabs.sendMessage(tabs[0].id, { message: "GetUUID" }, function(response) {
+                let articleUuid = response.articleUuid;
+                // 这里可以根据articleUuid做后续处理
+                // 例如显示信息，或者其他操作
+                console.log(articleUuid); // 仅作为示例
+            });
+        }
+    });
     // 保存按钮的点击事件
     saveBtn.addEventListener('click', function() {
         const notionToken = document.getElementById('notionToken').value;
@@ -90,6 +105,78 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     // ...
     // 这里您可以添加调用后端服务的逻辑，比如同步文章到 Notion
+
+    // 一键同步知识库按钮事件
+    syncAllBtn.addEventListener('click', function() {
+        syncAllArticles();
+    });
+
+    function syncAllArticles() {
+        chrome.storage.sync.get(['notionToken', 'databaseId', 'apiKey'], async function(items) {
+            if (items.notionToken && items.databaseId && items.apiKey) {
+                try {
+                    let articles = await getAllArticlesFromReadknown(items.apiKey);
+                    for (let article of articles) {
+                        let notionBody = createNotionBody(article, items.databaseId);
+                        // 发送请求到 Notion API（需要实现）
+                        await sendToNotion(notionBody, items.notionToken);
+                    }
+                } catch (error) {
+                    console.error('Error syncing articles:', error);
+                }
+            } else {
+                alert('请先设置初始参数！');
+            }
+        });
+    }
+
+    async function getAllArticlesFromReadknown(apiKey) {
+        let articles = [];
+        let lastId = 0;
+        const limit = 20;
+    
+        while (true) {
+            const url = `https://api.readknown.cn/v1/articles?last_id=${lastId}&limit=${limit}`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`
+                }
+            });
+    
+            if (response.status !== 200) {
+                console.error('Failed to fetch articles:', response.status);
+                break;
+            }
+    
+            const data = await response.json();
+            if (data.code !== 0 || !data.data || data.data.length === 0) {
+                break;
+            }
+    
+            articles = articles.concat(data.data);
+            lastId = data.data[data.data.length - 1].id;
+    
+            // Check if we received less than 'limit' articles, which means we reached the end
+            if (data.data.length < limit) {
+                break;
+            }
+        }
+        console.log(articles)
+        return articles;
+    }
+    
+    
+
+    function createNotionBody(article, databaseId) {
+        // 将文章数据转换为 Notion API 所需格式的逻辑（需要实现）
+    }
+
+    async function sendToNotion(body, token) {
+        // 发送数据到 Notion 的逻辑（需要实现）
+        // 注意：需要处理 Notion API 的认证和请求格式
+    }
+
 });
 
 

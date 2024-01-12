@@ -17,7 +17,9 @@
         "storage"
     ],
     "host_permissions": [
-        "https://api.notion.com/*"
+        "https://api.notion.com/*",
+        "https://api.readknown.cn/"
+        
     ],
     "action": {
         "default_icon": {
