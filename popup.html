@@ -3,11 +3,44 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width">
-        <title>rKnwon2Notion</title>
+        <title>readKnwon2Notion</title>
         <link type="text/css" rel="stylesheet" href="css/popup.css">
     </head>
     <body>
-        <header>
+        <div class="container">
+            <div class="settings">
+                <header class="header">
+                    <button id="cancelBtn" class="back-button">&#60;</button>
+                    <h2 class="title">设置</h2>
+                </header>
+                <div class="input-group">
+                    <label for="notionToken">Notion Token:</label>
+                    <input type="text" id="notionToken" placeholder="Enter Notion Token">
+                    <span class="error-message" id="notionTokenError"></span>
+                </div>
+                <div class="input-group">
+                    <label for="databaseId">Database ID:</label>
+                    <input type="text" id="databaseId" placeholder="Enter Database ID">
+                    <span class="error-message" id="databaseIdError"></span>
+                </div>
+                <div class="input-group">
+                    <label for="apiKey">ReadKnown API Key:</label>
+                    <input type="text" id="apiKey" placeholder="Enter ReadKnown API Key">
+                    <span class="error-message" id="apiKeyError"></span>
+                </div>
+                <button id="saveBtn">保存</button>
+            </div>
+            <div class="actions" style="display:none;">
+                <button id="syncAll">一键同步知识库</button>
+                <button id="syncCurrent">同步当前文章</button>
+                <footer class="footer">
+                    <a href="#" id="settingsBtn">设置</a> - 
+                    <a href="https://github.com/ChenyqThu/rKnown2Notion" target="_blank">GitHub</a> - 
+                    <a href="https://chenge.ink" target="_blank">联系</a>
+                </footer>
+            </div>
+        </div>
+        <!-- <header>
             总结文章
         </header>
         <div id="pretitle"></div>
@@ -19,14 +52,14 @@
         </div>
         <div class="btn" id="rt">
             <button id="sync">一键同步知识库</button>
-        </div>
+        </div> 
         <footer class="gtx-footer">
             <a class="gtx-a" id="options-link" target="_blank" href="options.html">设置</a>
              - 
             <a class="gtx-a" id="github-link" target="_blank" href="https://github.com/ChenyqThu/rKnown2Notion">Github地址</a>
              - 
             <a class="gtx-a" id="about-link" target="_blank" href="https://chenge.ink">联系</a>
-        </footer>
+        </footer>-->
 
         <script src="js/popup.js"></script>
     </body>

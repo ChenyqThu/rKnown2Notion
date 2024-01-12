@@ -1,4 +1,125 @@
-header {
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+.container {
+    padding: 10px;
+    width: 90%;
+    max-width: 400px;
+    min-width: 300px;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"] {
+    width: calc(100% - 20px); /* 调整输入框宽度 */
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+button:active {
+    background-color: #397d35;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    padding-bottom: 0px;
+    border-bottom: none;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1; /* 调整行高以确保按钮的大小合适 */
+    width: 1.5em; /* 设置宽度与字体大小大致相同 */
+    height: 1.5em; /* 设置高度与字体大小大致相同 */
+    text-align: center;
+    transition: color 0.3s;
+    margin-right: 5px;
+}
+
+.back-button:hover {
+    color: #4CAF50;
+}
+
+.title {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.settings {
+    padding: 0px;
+}
+
+.settings, .actions {
+    margin-bottom: 0px;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.8em;
+    height: 18px; /* 确保即使没有错误消息时，布局也保持一致 */
+    margin-top: 5px;
+}
+
+/* 页脚样式 */
+.footer {
+    text-align: right;
+    padding-top: 10px; /* 根据需要调整 */
+    font-size: 1.1em;
+}
+
+.footer a {
+    color: #333; /* 链接的默认颜色 */
+    text-decoration: none;
+    padding: 3px;
+    transition: color 0.3s;
+}
+
+.footer a:hover {
+    color: #4CAF50; /* 鼠标悬停时的颜色 */
+}
+
+/* 其他样式保持不变 */
+
+
+
+/* header {
     display: block;
     width: 280px;
     background-color: #4285f4;
@@ -50,7 +171,7 @@ hr {
     margin: 10px 10px 5px 10px;
 } */
 
-.title {
+/* .title {
     display: block;
     float: left;
     width: 40px;
@@ -106,4 +227,4 @@ footer {
     display: inline;
     font-size: 11px;
     text-decoration: none
-}
+} */ 
