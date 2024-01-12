@@ -8,6 +8,7 @@ save.addEventListener("click", () => {
     save.setAttribute("disabled", "disabled");
     var nToken = document.getElementById("nToken").value;
     var pageID = document.getElementById("pageID").value;
+    var key = document.getElementById("key").value;
     createDatabase(nToken, pageID);
 })
 
@@ -16,11 +17,12 @@ reset.addEventListener("click", () => {
 });
 
 function checkPlaceHolder() {
-    chrome.storage.local.get(["nToken","pageID"], (data)=>{
+    chrome.storage.local.get(["nToken","pageID","key"], (data)=>{
         // 未保存token和pageid
-        if( data["nToken"] === undefined || data["pageID"] === undefined) {
+        if( data["nToken"] === undefined || data["pageID"] === undefined || data["key"] === undefined) {
             document.getElementById("nToken").innerText = 'token'
             document.getElementById("pageID").innerText = 'pageID'
+            document.getElementById("key").innerText = 'key'
             reset.style.backgroundColor = "#cecece";
             reset.setAttribute("disabled","disabled")
             save.style.backgroundColor = "#4285f4";
@@ -29,6 +31,7 @@ function checkPlaceHolder() {
         } else {
             document.getElementById("nToken").innerText = data["nToken"]
             document.getElementById("pageID").innerText = data["pageID"]
+            document.getElementById("key").innerText = data["key"]
             save.style.backgroundColor = "#cecece";
             save.setAttribute("disabled","disabled")
             reset.style.backgroundColor = "#4285f4";
@@ -110,7 +113,7 @@ function createDatabase(nToken, pageID) {
 }
 
 function resetM() {
-    chrome.storage.local.remove(["nToken","pageID"],()=>{
+    chrome.storage.local.remove(["nToken","pageID","key"],()=>{
         checkPlaceHolder();
     });
 }

@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Book2Notion",
+    "name": "rKnown2Notion",
     "version": "1.0",
-    "description": "将豆瓣书籍信息同步到Notion",
+    "description": "将知了阅读的内容同步到Notion",
     "background": {
         "service_worker": "background.js"
     },
@@ -30,7 +30,7 @@
 
     "content_scripts": [
         {
-          "matches": ["*://book.douban.com/subject/*"],
+          "matches": ["*://readknown.cn/dashboard/*"],
           "js": ["js/content.js"]
         }
     ],
