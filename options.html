@@ -1,5 +1,84 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>ReadKnown2Notion 参数设置</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="p-6 bg-gray-100">
+    <div class="max-w-lg mx-auto bg-white shadow-lg rounded-lg overflow-hidden p-5 space-y-4">
+        <!-- Notion Token -->
+        <div class="relative">
+            <label class="block">
+                <span class="block text-sm font-medium text-slate-700">
+                    Notion Token<span class="ml-0.5 text-red-500">*</span>
+                </span>
+                <input type="password" id="notionToken" class="peer mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="secret_xxxxxxx" required/>
+                <span class="absolute right-3 top-8 cursor-pointer" id="toggleNotionTokenVisibility">
+                    <!-- Eye Icon -->
+                    <svg id="notionEyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                </span>
+            </label>
+            <p id="notionTokenError" class="mt-2 hidden text-pink-600 text-sm">请输入正确的Notion Token.</p>
+        </div>
+
+        <!-- Database ID -->
+        <label class="block">
+            <span class="block text-sm font-medium text-slate-700">
+                Database ID<span class="ml-0.5 text-red-500">*</span>
+            </span>
+            <input type="text" id="databaseId" class="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="xxxxxxxxxxxx" required/>
+        </label>
+        <p id="databaseIdError" class="mt-2 hidden text-pink-600 text-sm">请输入正确的Notion DatabaseID, 并确保添加connections权限.</p>
+
+        <!-- ReadKnown apiKey -->
+        <div class="relative">
+            <label class="block">
+                <span class="block text-sm font-medium text-slate-700">
+                    ReadKnown apiKey<span class="ml-0.5 text-red-500">*</span>
+                </span>
+                <input type="password" id="apiKey" class="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1" placeholder="osk-xxxxxxx" required/>
+                <span class="absolute right-3 top-8 cursor-pointer" id="toggleapiKeyVisibility"">
+                    <!-- Eye Icon -->
+                    <svg id="apiKeyEyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                </span>
+            </label>
+            <p id="apiKeyError" class="mt-2 hidden text-pink-600 text-sm">请输入正确的知了apiKey.</p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-between">
+            <button id="saveBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Save
+            </button>
+            <button id="resetBtn" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                Reset
+            </button>
+        </div>
+
+        <!-- 浮窗提示，位于顶部居中，白底黑字，带阴影 -->
+        <div id="alertBox" class="hidden fixed top-5 left-1/2 transform -translate-x-1/2 bg-white text-black py-2 px-4 rounded-sm shadow-lg">
+            ✅ 保存成功！
+        </div>
+
+    </div>
+    <script src="js/options.js"></script>
+</body>
+</html>
+
+
+
+<!-- 
+
+<!DOCTYPE html>
+<html>
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -26,7 +105,7 @@
             </div>
         </div>
         <div class="option-row">
-            <p class="title">readKnown api-Key:</p>
+            <p class="title">readKnown apiKey:</p>
             <div class="text">
                 <textarea id="key" spellcheck="false"></textarea>
             </div>
@@ -47,4 +126,4 @@
     <script src="js/options.js"></script>
 </body>
 
-</html>
+</html> -->

@@ -7,9 +7,9 @@
         "service_worker": "background.js"
     },
     "icons": {
-        "16": "imgs/icon16.png",
-        "48": "imgs/icon48.png",
-        "128": "imgs/icon128.png"
+        "16": "imgs/logo.jpg",
+        "48": "imgs/logo.jpg",
+        "128": "imgs/logo.jpg"
     },
     "permissions": [
         "contextMenus",
@@ -23,13 +23,12 @@
     ],
     "action": {
         "default_icon": {
-            "16": "imgs/icon16.png",
-            "48": "imgs/icon48.png",
-            "128": "imgs/icon128.png"
+            "16": "imgs/logo.jpg",
+            "48": "imgs/logo.jpg",
+            "128": "imgs/logo.jpg"
         },
         "default_popup": "popup.html"
     },
-
     "content_scripts": [
         {
           "matches": ["*://readknown.cn/dashboard/*"],
