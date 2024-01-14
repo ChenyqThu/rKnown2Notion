@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         chrome.storage.sync.get(['notionToken', 'databaseId', 'apiKey'], function(items) {
             if (chrome.runtime.lastError || !items.notionToken || !items.databaseId || !items.apiKey) {
                 // 缺失参数，发送警告消息回content.js
-                chrome.tabs.sendMessage(sender.tab.id, { type: 'ERROR', message: '缺少必要的配置参数。' });
+                chrome.tabs.sendMessage(sender.tab.id, { type: 'ERROR', message: '缺少必要的配置参数, 请先设置参数' });
                 return;
             }
             // 所有参数都存在，可以调用ReadKnown API
@@ -21,18 +21,65 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                     const notionBody = createNotionBody(articleData.data, items.databaseId);
                     const content = getContent(articleData.data);
 
-                    createPageInNotion(items.notionToken, notionBody, content, sender.tab.id, request.uuid)
+                    createPageInNotion(items.notionToken, notionBody, content);
+                    chrome.tabs.sendMessage(sender.tab.id, { type: 'INFO', message: '成功同步到Notion页面！' });
                 })
                 .catch(error => {
-                    console.error('获取文章数据失败:', error);
-                    chrome.tabs.sendMessage(sender.tab.id, { type: 'ERROR', message: '获取文章数据失败，请检查api_key是否配置正确。' });
+                    console.error('处理失败:', error);
+                    chrome.tabs.sendMessage(sender.tab.id, { type: 'ERROR', message: error });
+                });
+        });
+    } else if (request.type === "startSync") {
+        // 执行耗时的同步操作
+        chrome.storage.sync.get(['notionToken', 'databaseId', 'apiKey'], function(items) {
+            if (chrome.runtime.lastError || !items.notionToken || !items.databaseId || !items.apiKey) {
+                // 缺失参数，发送警告消息回content.js
+                chrome.tabs.sendMessage(sender.tab.id, { type: 'SYNC FAIL', message: '❌ 缺少必要的配置参数，请先设置参数。' });
+                return;
+            }
+
+            getAllArticlesFromReadknown(items.apiKey)
+                .then(articles => {
+                    // ✔ console.log("开始同步，文章：", articles);
+                    let totalArticles = articles.length;
+                    for (let i=0; i<totalArticles;i++){
+                        let article = articles[i];
+                        const notionBody = createNotionBody(article, items.databaseId);
+                        const content = getContent(article);
+
+                        // 同步单篇文章到Notion
+                        createPageInNotion(items.notionToken, notionBody, content);
+
+                        // 更新同步状态
+                        console.log( `正在同步： ${i+1}/${totalArticles}...`)
+                        chrome.tabs.sendMessage(sender.tab.id, { type: 'SYNC', message: `正在同步：${i+1}/${totalArticles}...` });
+                    }
+                    // 所有文章同步完成后的消息
+                    console.log('同步完成！')
+                    chrome.tabs.sendMessage(sender.tab.id, { type: 'SYNC SUCC', message: '✅ 知识库同步完成！' });
+                })
+                .catch(error => {
+                    //console.log('同步到Notion失败:',error);
+                    // 在后台脚本的相应位置
+                    chrome.tabs.sendMessage(sender.tab.id, { type: 'SYNC FAIL', message: '❌ 同步到Notion失败，请检查notion token,database字段及权限是否正确！' });
                 });
         });
     }
-    return true; // 异步响应
+    return true; 
 });
 
-function createPageInNotion(nToken, notionBody, blocks, tabId, uuid) {
+// 示例：发送同步状态的通知
+function updateSyncStatus(current, total) {
+    chrome.notifications.create('sync-notification', {
+        type: 'basic',
+        iconUrl: 'icon.png', // 您的图标URL
+        title: '同步状态',
+        message: `正在同步知识库： ${current}/${total}...`,
+        priority: 2
+    });
+}
+
+function createPageInNotion(nToken, notionBody, blocks) {
     const options = {
         method: 'POST',
         headers: {
@@ -43,26 +90,26 @@ function createPageInNotion(nToken, notionBody, blocks, tabId, uuid) {
         body: JSON.stringify(notionBody)
     }
 
-    console.log(notionBody)
+    const uuid = notionBody.properties.aID.rich_text[0].text.content;
         
     fetch("https://api.notion.com/v1/pages", options)
     .then(response => response.json())
     .then(async (response) => {
         if (response.object === "error") {
             if (response.status === 404) {
+                throw new Error('页面未找到，请确认Database ID正确，并且已经在connections中添加了对应token的应用的权限。');
                 console.log("页面未找到，请确认Database ID正确，并且已经在connections中添加了对应token的应用的权限。");
                 chrome.tabs.sendMessage(tabId, { type: 'ERROR', message: '页面未找到，请确认Database ID正确，并且已经在connections中添加了对应token的应用的权限。' });
             } else {
+                throw new Error("error创建notion页面出错!"+response.message);
                 console.log("error创建notion页面出错!" + response.message);
                 chrome.tabs.sendMessage(tabId, { type: 'ERROR', message: '创建Notion页面出错，请检查Database字段是否正确。' });
             }
             return false;
         } else {
             //chrome.tabs.sendMessage(sender.tab.id, { type: 'INFO', message: '成功创建Notion页面！' });
-            console.log("成功创建Notion页面!,响应：",response)
             const pageId = response.id;
             const batchSize = 100;
-            console.log(pageId)
             for (let i = 0; i < blocks.length; i += batchSize) {
                 let batch = blocks.slice(i, i + batchSize);
                 console.log("正在添加blocks批次:", i / batchSize + 1);
@@ -79,22 +126,25 @@ function createPageInNotion(nToken, notionBody, blocks, tabId, uuid) {
                     
                     const batchResponseData = await batchResponse.json(); // 解析响应数据
                     if (!batchResponse.ok) {
+                        throw new Error("向页面添加内容出错!"+batchResponseData);
                         console.log("向页面添加内容出错!", batchResponseData);
                         chrome.tabs.sendMessage(tabId, { type: 'ERROR', message: '向页面添加内容时出错！' });
                     }
         
-                    await new Promise(resolve => setTimeout(resolve, 300));
+                    await new Promise(resolve => setTimeout(resolve, 500));
                 } catch (error) {
+                    throw new Error("Notion 连接异常！添加blocks时出错:"+error);
                     console.error("Notion 连接异常！添加blocks时出错:", error);
                     chrome.tabs.sendMessage(tabId, { type: 'ERROR', message: '向页面添加内容时出错, Notion连接异常！' });
                 }
             }
-            chrome.tabs.sendMessage(tabId, { type: 'INFO', message: '成功同步到Notion页面！' });
+            //chrome.tabs.sendMessage(tabId, { type: 'INFO', message: '成功同步到Notion页面！' });
             saveSyncedArticle(uuid); //保存该UUID
             return true;
         }
     })
     .catch(error => {
+        throw new Error('请求Notion API时出错:'+error);
         console.error('请求Notion API时出错:', error);
         chrome.tabs.sendMessage(tabId, { type: 'ERROR', message: '请求Notion API时出错！' });
         return false; // 处理网络请求错误
@@ -102,12 +152,35 @@ function createPageInNotion(nToken, notionBody, blocks, tabId, uuid) {
 }
 
 function saveSyncedArticle(uuid) {
-    chrome.storage.local.get({syncedArticles: []}, function(result) {
+    chrome.storage.sync.get({syncedArticles: []}, function(result) {
         const syncedArticles = new Set(result.syncedArticles);
         syncedArticles.add(uuid);
-        chrome.storage.local.set({syncedArticles: Array.from(syncedArticles)});
+        chrome.storage.sync.set({syncedArticles: Array.from(syncedArticles)});
     });
 }
+
+function getAllArticlesFromReadknown(apiKey) {
+    const url = `https://api.readknown.cn/v1/articles?page=1&limit=100`;
+    
+    return fetch(url, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${apiKey}`
+        }
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok.');
+        }
+        return response.json();
+    }).then(data =>{
+        // 处理返回的数据
+        if (data.code !== 0) {
+            throw new Error(data.message);
+        }
+        return data.data;
+    })
+}
+
 
 function getArticleFromReadknown(uuid, apiKey) {
     // 构建请求的API地址
